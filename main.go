@@ -6,8 +6,8 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
-	"backend/config"
-	"backend/controllers"
+	"rest-api/config"
+	"rest-api/controllers"
 )
 
 func main() {
