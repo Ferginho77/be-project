@@ -4,15 +4,14 @@
 package config
 
 import (
-	"fmt"
+"fmt"
 	"log"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
-var mysqlDB = require("mysql")
-
 
 const (
 	host     = "xu1nvg.h.filess.io"
@@ -23,24 +22,25 @@ const (
 )
 
 func Conn() {
-	uri := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, password, host, port, dbname)
 
-	db, err := sql.Open("mysql", uri)
-	defer db.Close()
+	dsn := fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		user,
+		password,
+		host,
+		port,
+		dbname,
+	)
+
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var version string
+	DB = db
 
-	err2 := db.QueryRow("SELECT VERSION()").Scan(&version)
-
-	if err2 != nil {
-		log.Fatal(err2)
-	}
-
-	fmt.Println(version)
+	fmt.Println("Database Connected")
 }
 
 // CONFIG LOCAL
