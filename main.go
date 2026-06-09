@@ -21,11 +21,14 @@ func main() {
 	r.GET("/lahans", controllers.GetLahan)
 	r.GET("/inventaris", controllers.GetInventaris)
 	r.GET("/schedulers", controllers.GetScheduler)
+	r.GET("/penanamans", controllers.GetPenanaman)
 
 	r.DELETE("/lahans/:id", controllers.DeleteLahan)
 	r.DELETE("/inventaris/:id", controllers.DeleteInventaris)
+	r.DELETE("/penanamans/:id", controllers.DeletePenanaman)
 
-	r.POST("/schedulers", controllers.TambahScheduler)
+	r.POST("/schedulers", controllers.CreateScheduler)
+	r.POST("/inventaris", controllers.CreateInventaris)
 
 	r.PUT("/schedulers/:id/status", controllers.UpdateStatus)
 

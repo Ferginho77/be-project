@@ -39,3 +39,16 @@ func DeleteInventaris(c *gin.Context) {
 
 	c.JSON(200, gin.H{"message": "Inventaris berhasil dihapus"})
 }
+
+func CreateInventaris(c *gin.Context) {
+	var inventaris models.Inventaris
+	if err := c.ShouldBindJSON(&inventaris); err != nil {
+		c.JSON(400, gin.H{"error": "Data tidak valid"})
+		return
+	}
+	if err := config.DB.Create(&inventaris).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Gagal buat data"})
+		return
+	}
+	c.JSON(201, inventaris)
+}

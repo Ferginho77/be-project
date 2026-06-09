@@ -16,19 +16,14 @@ func GetScheduler(c *gin.Context){
 	c.JSON(200, scheduler)
 }
 
-func TambahScheduler(c *gin.Context){
-	var input models.Scheduler
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(400, gin.H{"error": "Input tidak valid"})
+func CreateScheduler(c *gin.Context) {
+	var scheduler models.Scheduler
+	if err := c.ShouldBindJSON(&scheduler); err != nil {
+		c.JSON(400, gin.H{"error": "Data tidak valid"})
 		return
 	}
-	scheduler := models.Scheduler{
-		NamaScheduler: input.NamaScheduler,
-		Tanggal: input.Tanggal,
-		Status: input.Status,
-	}
 	if err := config.DB.Create(&scheduler).Error; err != nil {
-		c.JSON(500, gin.H{"error": "Gagal menambahkan data"})
+		c.JSON(500, gin.H{"error": "Gagal buat data"})
 		return
 	}
 	c.JSON(201, scheduler)
