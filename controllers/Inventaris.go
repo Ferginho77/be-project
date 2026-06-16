@@ -52,3 +52,31 @@ func CreateInventaris(c *gin.Context) {
 	}
 	c.JSON(201, inventaris)
 }
+
+
+func UpdateInventaris(c *gin.Context) {
+	var inventaris models.Inventaris
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "ID tidak valid"})
+		return
+	}
+	if err := config.DB.Where("InventarisId = ?", id).Take(&inventaris).Error; err != nil {
+		c.JSON(404, gin.H{"error": "Inventaris tidak ditemukan"})
+		return
+	}
+	var input models.Inventaris
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(400, gin.H{"error": "Data tidak valid"})
+		return
+	}
+	inventaris.NamaBarang = input.NamaBarang
+	inventaris.Jenis = input.Jenis
+	inventaris.Stok = input.Stok
+	if err := config.DB.Save(&inventaris).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Gagal update data"})
+		return
+	}
+	c.JSON(200, inventaris)
+}

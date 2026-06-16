@@ -26,11 +26,16 @@ func main() {
 	r.DELETE("/lahans/:id", controllers.DeleteLahan)
 	r.DELETE("/inventaris/:id", controllers.DeleteInventaris)
 	r.DELETE("/penanamans/:id", controllers.DeletePenanaman)
+	r.DELETE("/schedulers/:id", controllers.DeleteScheduler)
 
 	r.POST("/schedulers", controllers.CreateScheduler)
 	r.POST("/inventaris", controllers.CreateInventaris)
+	r.POST("/schedulers/:id", controllers.UpdateStatus)
 
-	r.PUT("/schedulers/:id/status", controllers.UpdateStatus)
+
+	r.PUT("/schedulers/:id/update", controllers.UpdateScheduler)
+	r.PUT("/inventaris/:id/update", controllers.UpdateInventaris)
+
 
 	port := os.Getenv("PORT")
 	if port == "" {
