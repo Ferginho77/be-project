@@ -6,10 +6,13 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"rest-api/controllers"
+	"rest-api/config"
 )
 
 func main() {
 	r := gin.Default()
+
+	config.Conn()
 
 	r.Use(cors.Default())
 
