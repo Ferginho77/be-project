@@ -28,12 +28,14 @@ func main() {
 	r.DELETE("/schedulers/:id", controllers.DeleteScheduler)
 
 	r.POST("/schedulers", controllers.CreateScheduler)
+	r.POST("/lahans", controllers.CreateLahan)
 	r.POST("/inventaris", controllers.CreateInventaris)
 	r.POST("/schedulers/:id", controllers.UpdateStatus)
 
 
 	r.PUT("/schedulers/:id/update", controllers.UpdateScheduler)
 	r.PUT("/inventaris/:id/update", controllers.UpdateInventaris)
+	r.PUT("/lahans/:id/update", controllers.UpdateLahan)
 
 
 	port := os.Getenv("PORT")
