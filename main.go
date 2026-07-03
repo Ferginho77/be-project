@@ -31,6 +31,7 @@ func main() {
 	r.POST("/lahans", controllers.CreateLahan)
 	r.POST("/inventaris", controllers.CreateInventaris)
 	r.POST("/schedulers/:id", controllers.UpdateStatus)
+	r.POST("/penanamans", controllers.CreatePenanaman)
 
 
 	r.PUT("/schedulers/:id/update", controllers.UpdateScheduler)

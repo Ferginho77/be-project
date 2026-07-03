@@ -34,3 +34,16 @@ func DeletePenanaman(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{"message": "Penanaman berhasil dihapus"})
 }
+
+func CreatePenanaman(c *gin.Context) {
+	var penanaman models.Penanaman
+	if err := c.ShouldBindJSON(&penanaman); err != nil {
+		c.JSON(400, gin.H{"error": "Data tidak valid"})
+		return
+	}	
+	if err := config.DB.Create(&penanaman).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Gagal simpan data"})
+		return
+	}
+	c.JSON(201, penanaman)
+}
