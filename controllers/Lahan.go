@@ -74,6 +74,7 @@ func UpdateLahan(c *gin.Context) {
 	Lahan.NamaLahan = input.NamaLahan
 	Lahan.LuasTanah = input.LuasTanah
 	Lahan.Kondisi = input.Kondisi
+	Lahan.StatusLahan = input.StatusLahan
 	if err := config.DB.Save(&Lahan).Error; err != nil {
 		c.JSON(500, gin.H{"error": "Gagal update data"})
 		return

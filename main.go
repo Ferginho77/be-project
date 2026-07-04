@@ -37,6 +37,7 @@ func main() {
 	r.PUT("/schedulers/:id/update", controllers.UpdateScheduler)
 	r.PUT("/inventaris/:id/update", controllers.UpdateInventaris)
 	r.PUT("/lahans/:id/update", controllers.UpdateLahan)
+	r.PUT("/penanamans/:id/update", controllers.UpdatePenanaman)
 
 
 	port := os.Getenv("PORT")

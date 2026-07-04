@@ -10,6 +10,7 @@ type Penanaman struct {
 	TanamanId uint `json:"TanamanId" gorm:"column:TanamanId"`
 	LahanId   uint `json:"LahanId" gorm:"column:LahanId"`
 	Fase string `json:"Fase" gorm:"column:Fase;type:enum('Vegetatif','Generatif','Panen');default:'Vegetatif'"`
+	Status string `json:"Status" gorm:"column:Status;type:enum('Aktif','Panen', 'Gagal', 'Selesai');default:'Aktif'"`
 }
 
 func (Penanaman) TableName() string {	
