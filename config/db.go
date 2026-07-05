@@ -18,11 +18,11 @@ var (
 )
 
 const (
-	host     = "xu1nvg.h.filess.io"
+	host     = "1aseyi.h.filess.io"
 	port     = "3307"
-	user     = "goland_settingeat"
-	password = "edc5b3d3d8bfc6bc05b7a052bc24905752e21aa1"
-	dbname   = "goland_settingeat"
+	user     = "tumbura_lifedream"
+	password = "35b858ae13a183abea8c340928a8f07c2bc63d8b"
+	dbname   = "tumbura_lifedream"
 )
 
 func Conn() {
