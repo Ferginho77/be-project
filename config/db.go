@@ -3,14 +3,19 @@
 package config
 
 import (
-"fmt"
+	"database/sql"
+	"fmt"
 	"log"
+	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
+var (
+	DB    *gorm.DB
+	SQLDB *sql.DB
+)
 
 const (
 	host     = "xu1nvg.h.filess.io"
@@ -32,12 +37,23 @@ func Conn() {
 	)
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Setting Connection Pool
+	sqlDB.SetMaxOpenConns(5)
+	sqlDB.SetMaxIdleConns(2)
+	sqlDB.SetConnMaxLifetime(30 * time.Minute)
+	sqlDB.SetConnMaxIdleTime(5 * time.Minute)
+
 	DB = db
+	SQLDB = sqlDB
 
 	fmt.Println("Database Connected")
 }
