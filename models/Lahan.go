@@ -1,12 +1,12 @@
 package models
 
-
+    
 type Lahan struct {
-    LahanId    int     `gorm:"column:LahanId;primaryKey"`
-    NamaLahan  string `json:"NamaLahan"   gorm:"column:NamaLahan"`
-    LuasTanah  float64 `json:"LuasTanah"   gorm:"column:LuasTanah"`
-    Kondisi    string  `json:"Kondisi"   gorm:"column:Kondisi"`
-    StatusLahan    string  `json:"StatusLahan"   gorm:"column:StatusLahan"`
+    LahanId     uint    `gorm:"column:LahanId" json:"LahanId"`
+    NamaLahan   string  `gorm:"column:NamaLahan" json:"NamaLahan"`
+    LuasTanah   float64 `gorm:"column:LuasTanah" json:"LuasTanah"`
+    Kondisi     string  `gorm:"column:Kondisi" json:"Kondisi"`
+    StatusLahan string  `gorm:"column:StatusLahan" json:"StatusLahan"`
 }
 
 func (Lahan) TableName() string {
