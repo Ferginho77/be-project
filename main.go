@@ -12,37 +12,75 @@ import (
 func main() {
 	r := gin.Default()
 
+	// 1. Inisialisasi Database
 	config.Conn()
 
+	// 2. Middleware
 	r.Use(cors.Default())
 
+	// 3. Routing (Dikelompokkan berdasarkan entitas/resource)
+	
+	// --- Tanaman ---
 	r.GET("/tanamans", controllers.GetTanaman)
-	r.GET("/lahans", controllers.GetLahan)
-	r.GET("/inventaris", controllers.GetInventaris)
-	r.GET("/schedulers", controllers.GetScheduler)
-	r.GET("/penanamans", controllers.GetPenanaman)
 
-	r.DELETE("/lahans/:id", controllers.DeleteLahan)
-	r.DELETE("/inventaris/:id", controllers.DeleteInventaris)
-	r.DELETE("/penanamans/:id", controllers.DeletePenanaman)
-	r.DELETE("/schedulers/:id", controllers.DeleteScheduler)
+	// LOGIN
+	r.POST("/login", controllers.Login)
 
-	r.POST("/schedulers", controllers.CreateScheduler)
-	r.POST("/lahans", controllers.CreateLahan)
-	r.POST("/inventaris", controllers.CreateInventaris)
-	r.POST("/schedulers/:id", controllers.UpdateStatus)
-	r.POST("/penanamans", controllers.CreatePenanaman)
+	// --- Lahan ---
+	lahan := r.Group("/lahans")
+	{
+		lahan.GET("", controllers.GetLahan)
+		lahan.POST("", controllers.CreateLahan)
+		lahan.PUT("/:id/update", controllers.UpdateLahan)
+		lahan.DELETE("/:id", controllers.DeleteLahan)
+	}
 
+	// --- Inventaris ---
+	inventaris := r.Group("/inventaris")
+	{
+		inventaris.GET("", controllers.GetInventaris)
+		inventaris.POST("", controllers.CreateInventaris)
+		inventaris.PUT("/:id/update", controllers.UpdateInventaris)
+		inventaris.DELETE("/:id", controllers.DeleteInventaris)
+	}
 
-	r.PUT("/schedulers/:id/update", controllers.UpdateScheduler)
-	r.PUT("/inventaris/:id/update", controllers.UpdateInventaris)
-	r.PUT("/lahans/:id/update", controllers.UpdateLahan)
-	r.PUT("/penanamans/:id/update", controllers.UpdatePenanaman)
+	// --- Scheduler ---
+	scheduler := r.Group("/schedulers")
+	{
+		scheduler.GET("", controllers.GetScheduler)
+		scheduler.POST("", controllers.CreateScheduler)
+		scheduler.POST("/:id", controllers.UpdateStatus) 
+		scheduler.PUT("/:id/update", controllers.UpdateScheduler)
+		scheduler.DELETE("/:id", controllers.DeleteScheduler)
+	}
 
+	// --- Penanaman ---
+	penanaman := r.Group("/penanamans")
+	{
+		penanaman.GET("", controllers.GetPenanaman)
+		penanaman.POST("", controllers.CreatePenanaman)
+		penanaman.PUT("/:id/update", controllers.UpdatePenanaman)
+		penanaman.DELETE("/:id", controllers.DeletePenanaman)
+	}
 
+	// --- Produksi ---
+	produksi := r.Group("/produksi")
+	{
+		produksi.GET("", controllers.GetProduksi)
+		produksi.POST("", controllers.CreateProduksi)
+	}
+
+	// --- Aktivitas ---
+	aktivitas := r.Group("/aktivitas")
+	{
+		aktivitas.GET("", controllers.GetAktivitas)
+		aktivitas.POST("", controllers.CreateAktivitas)
+	}
+
+	// 4. Setup Port & Jalankan Server
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" // untuk development lokal
+		port = "8080" // Default untuk development lokal
 	}
 
 	r.Run(":" + port)
