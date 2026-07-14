@@ -1,9 +1,10 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
 	"rest-api/config"
 	"rest-api/models"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetTanaman(c *gin.Context) {
