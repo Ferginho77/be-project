@@ -21,7 +21,13 @@ func main() {
 	// 3. Routing (Dikelompokkan berdasarkan entitas/resource)
 	
 	// --- Tanaman ---
-	r.GET("/tanamans", controllers.GetTanaman)
+	tanaman := r.Group("/tanamans")
+	{
+		tanaman.GET("", controllers.GetTanaman)
+		tanaman.POST("", controllers.CreateTanaman)
+		tanaman.PUT("/:id/update", controllers.UpdateTanaman)
+		tanaman.DELETE("/:id", controllers.DeleteTanaman)
+	}
 
 	// LOGIN
 	r.POST("/login", controllers.Login)
@@ -31,6 +37,7 @@ func main() {
 	{
 		lahan.GET("", controllers.GetLahan)
 		lahan.POST("", controllers.CreateLahan)
+		lahan.GET("/:id/control", controllers.GetLahanControl)
 		lahan.PUT("/:id/update", controllers.UpdateLahan)
 		lahan.DELETE("/:id", controllers.DeleteLahan)
 	}

@@ -18,6 +18,7 @@ type Aktivitas struct {
 	JenisAktivitas string `json:"JenisAktivitas" gorm:"column:JenisAktivitas;type:enum('Pemupukan','Penyiraman','Pengobatan');default:'Pemupukan'"`
 	Keterangan     string `json:"Keterangan"     gorm:"column:Keterangan"`
 	PenanamanId    uint   `json:"PenanamanId"    gorm:"column:PenanamanId"`
+	SchedulerId    uint   `json:"SchedulerId"    gorm:"column:SchedulerId"`
 }
 
 func (Aktivitas) TableName() string {

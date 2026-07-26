@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"fmt"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"rest-api/config"
 	"rest-api/models"
-	"strconv"
-	"fmt"
-
 )
 
 func GetScheduler(c *gin.Context){
@@ -52,10 +54,30 @@ func DeleteScheduler(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "Scheduler berhasil dihapus"})
 }
 
+// jenisAktivitasFromScheduler memetakan nama agenda ke enum JenisAktivitas yang valid.
+func jenisAktivitasFromScheduler(namaScheduler string) string {
+	// Enum yang valid di database: 'Pemupukan', 'Penyiraman', 'Pengobatan'
+	lowered := strings.ToLower(namaScheduler)
+	keywords := map[string]string{
+		"pupuk":    "Pemupukan",
+		"siram":    "Penyiraman",
+		"air":      "Penyiraman",
+		"obat":     "Pengobatan",
+		"semprot":  "Pengobatan",
+		"hama":     "Pengobatan",
+		"penyakit": "Pengobatan",
+	}
+	for keyword, jenis := range keywords {
+		if strings.Contains(lowered, keyword) {
+			return jenis
+		}
+	}
+	// Default fallback
+	return "Pemupukan"
+}
+
 func UpdateStatus(c *gin.Context) {
 	id := c.Param("id")
-
-	var scheduler models.Scheduler
 
 	var body struct {
 		Status string `json:"Status"`
@@ -66,17 +88,49 @@ func UpdateStatus(c *gin.Context) {
 		return
 	}
 
+	var scheduler models.Scheduler
 	if err := config.DB.First(&scheduler, "SchedulerId = ?", id).Error; err != nil {
 		c.JSON(404, gin.H{"error": "Scheduler tidak ditemukan"})
 		return
 	}
 
-	scheduler.Status = body.Status
+	// Jalankan dalam satu transaksi atomik
+	tx := config.DB.Begin()
+	if tx.Error != nil {
+		c.JSON(500, gin.H{"error": "Gagal memulai transaksi"})
+		return
+	}
 
-	config.DB.Model(&models.Scheduler{}).
-    Where("SchedulerId = ?", id).
-    Update("Status", body.Status)
+	// 1. Update status scheduler
+	if err := tx.Model(&models.Scheduler{}).
+		Where("SchedulerId = ?", id).
+		Update("Status", body.Status).Error; err != nil {
+		tx.Rollback()
+		c.JSON(500, gin.H{"error": "Gagal update status"})
+		return
+	}
 
+	// 2. Jika status menjadi "Done" (sesuai ENUM database), buat record aktivitas baru
+	if body.Status == "Done" {
+		tanggalSelesai := time.Now().Format("2006-01-02")
+		aktivitas := models.Aktivitas{
+			JenisAktivitas: jenisAktivitasFromScheduler(scheduler.NamaScheduler),
+			Tanggal:        tanggalSelesai,
+			Keterangan:     fmt.Sprintf("Agenda '%s' selesai (Blok #%d)", scheduler.NamaScheduler, scheduler.PenanamanId),
+			PenanamanId:    scheduler.PenanamanId,
+			SchedulerId:    scheduler.SchedulerId, // referensi ke agenda asal
+		}
+		if err := tx.Create(&aktivitas).Error; err != nil {
+			tx.Rollback()
+			c.JSON(500, gin.H{"error": "Gagal mencatat aktivitas"})
+			return
+		}
+	}
+
+	tx.Commit()
+
+	// Reload scheduler yang sudah diupdate
+	config.DB.First(&scheduler, "SchedulerId = ?", id)
 	c.JSON(200, scheduler)
 }
 
@@ -92,8 +146,6 @@ func UpdateScheduler(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("DATA DARI FRONTEND: %+v\n", scheduler)
-
 	if err := config.DB.
 		Model(&models.Scheduler{}).
 		Where("SchedulerId = ?", id).
@@ -102,9 +154,6 @@ func UpdateScheduler(c *gin.Context) {
 			"Tanggal":       scheduler.Tanggal,
 			"Status":        scheduler.Status,
 		}).Error; err != nil {
-
-		fmt.Println("ERROR DATABASE:", err)
-
 		c.JSON(500, gin.H{
 			"error": err.Error(),
 		})

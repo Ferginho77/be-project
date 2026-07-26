@@ -81,3 +81,44 @@ func UpdateLahan(c *gin.Context) {
 	}
 	c.JSON(200, Lahan)
 }
+
+func GetLahanControl(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "ID tidak valid"})
+		return
+	}
+
+	// 1. Cari Penanaman yang aktif (Status 'Aktif' atau 'Panen')
+	var penanaman models.Penanaman
+	err = config.DB.Where("LahanId = ? AND Status IN ?", id, []string{"Aktif", "Panen"}).First(&penanaman).Error
+	if err != nil {
+		// Jika tidak ditemukan, kembalikan response kosong seperti yang diminta
+		c.JSON(200, gin.H{
+			"penanaman": nil,
+			"scheduler": []models.Scheduler{},
+			"aktivitas": []models.Aktivitas{},
+		})
+		return
+	}
+
+	// 2. Jika ditemukan, lakukan query scheduler & aktivitas
+	var schedulers []models.Scheduler
+	if err := config.DB.Where("PenanamanId = ?", penanaman.PenanamanId).Find(&schedulers).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Gagal mengambil data scheduler"})
+		return
+	}
+
+	var aktivitas []models.Aktivitas
+	if err := config.DB.Where("PenanamanId = ?", penanaman.PenanamanId).Find(&aktivitas).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Gagal mengambil data aktivitas"})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"penanaman": penanaman,
+		"scheduler": schedulers,
+		"aktivitas": aktivitas,
+	})
+}

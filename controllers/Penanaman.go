@@ -162,6 +162,13 @@ func UpdatePenanaman(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "Data tidak valid"})
 		return
 	}
+
+	tx := config.DB.Begin()
+	if tx.Error != nil {
+		c.JSON(500, gin.H{"error": "Gagal memulai transaksi database"})
+		return
+	}
+
 	penanaman.TanamanId = input.TanamanId
 	penanaman.TanggalTanam = input.TanggalTanam
 	penanaman.RencanaPanen = input.RencanaPanen
@@ -169,9 +176,47 @@ func UpdatePenanaman(c *gin.Context) {
 	penanaman.Fase = input.Fase
 	penanaman.Status = input.Status
 
-	if err := config.DB.Save(&penanaman).Error; err != nil {
-		c.JSON(500, gin.H{"error": "Gagal update data"})
+	if err := tx.Save(&penanaman).Error; err != nil {
+		tx.Rollback()
+		c.JSON(500, gin.H{"error": "Gagal update data penanaman"})
 		return
 	}
+
+	// Update status lahan dan scheduler yang terkait secara otomatis dan konsisten
+	if penanaman.Status == "Selesai" || penanaman.Status == "Gagal" {
+		if penanaman.LahanId != 0 {
+			if err := tx.Model(&models.Lahan{}).
+				Where("LahanId = ?", penanaman.LahanId).
+				Update("StatusLahan", "Kosong").Error; err != nil {
+				tx.Rollback()
+				c.JSON(500, gin.H{"error": "Gagal update status lahan"})
+				return
+			}
+		}
+		if err := tx.Model(&models.Scheduler{}).
+			Where("PenanamanId = ? AND Status = ?", penanaman.PenanamanId, "Pending").
+			Update("Status", "Dibatalkan").Error; err != nil {
+			tx.Rollback()
+			c.JSON(500, gin.H{"error": "Gagal update status scheduler"})
+			return
+		}
+	} else if penanaman.Status == "Aktif" || penanaman.Status == "Panen" {
+		if penanaman.LahanId != 0 {
+			if err := tx.Model(&models.Lahan{}).
+				Where("LahanId = ?", penanaman.LahanId).
+				Update("StatusLahan", "Aktif").Error; err != nil {
+				tx.Rollback()
+				c.JSON(500, gin.H{"error": "Gagal update status lahan"})
+				return
+			}
+		}
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		c.JSON(500, gin.H{"error": "Gagal commit transaksi"})
+		return
+	}
+
 	c.JSON(200, penanaman)
 }
