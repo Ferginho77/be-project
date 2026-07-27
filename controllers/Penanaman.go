@@ -32,10 +32,44 @@ func DeletePenanaman(c *gin.Context) {
 		c.JSON(404, gin.H{"error": "Penanaman tidak ditemukan"})
 		return
 	}
-	if err := config.DB.Delete(&penanaman).Error; err != nil {
-		c.JSON(500, gin.H{"error": "Gagal hapus data"})
+
+	tx := config.DB.Begin()
+	if tx.Error != nil {
+		c.JSON(500, gin.H{"error": "Gagal memulai transaksi"})
 		return
 	}
+
+	// 1. Hapus scheduler terkait
+	if err := tx.Where("PenanamanId = ?", penanaman.PenanamanId).Delete(&models.Scheduler{}).Error; err != nil {
+		tx.Rollback()
+		c.JSON(500, gin.H{"error": "Gagal menghapus scheduler terkait"})
+		return
+	}
+
+	// 2. Update status lahan terkait menjadi "Kosong" jika penanaman memiliki LahanId
+	if penanaman.LahanId != 0 {
+		if err := tx.Model(&models.Lahan{}).
+			Where("LahanId = ?", penanaman.LahanId).
+			Update("StatusLahan", "Kosong").Error; err != nil {
+			tx.Rollback()
+			c.JSON(500, gin.H{"error": "Gagal memperbarui status lahan"})
+			return
+		}
+	}
+
+	// 3. Hapus penanaman
+	if err := tx.Delete(&penanaman).Error; err != nil {
+		tx.Rollback()
+		c.JSON(500, gin.H{"error": "Gagal menghapus penanaman"})
+		return
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		c.JSON(500, gin.H{"error": "Gagal commit transaksi"})
+		return
+	}
+
 	c.JSON(200, gin.H{"message": "Penanaman berhasil dihapus"})
 }
 
