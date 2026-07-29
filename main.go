@@ -29,8 +29,10 @@ func main() {
 		tanaman.DELETE("/:id", controllers.DeleteTanaman)
 	}
 
-	// LOGIN
+	// LOGIN & REGISTER
 	r.POST("/login", controllers.Login)
+	r.POST("/register", controllers.Register)
+
 
 	// --- Lahan ---
 	lahan := r.Group("/lahans")
