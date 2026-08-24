@@ -2,15 +2,20 @@ package main
 
 import (
 	"os"
-
+	"log"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"rest-api/controllers"
 	"rest-api/config"
+	"rest-api/agents"
 )
 
 func main() {
 	r := gin.Default()
+	 if err := godotenv.Load(); err != nil {
+        log.Println("Warning: file .env tidak ditemukan")
+    }
 
 	// 1. Inisialisasi Database
 	config.Conn()
@@ -19,6 +24,12 @@ func main() {
 	r.Use(cors.Default())
 
 	// 3. Routing (Dikelompokkan berdasarkan entitas/resource)
+
+	agent := agents.NewMakersAgent()
+
+	// Inisialisasi controller dengan menginjeksikan agent
+	aiController := controllers.NewAIController(agent)
+	r.POST("/api/v1/analyze", aiController.Analyze)
 	
 	// --- Tanaman ---
 	tanaman := r.Group("/tanamans")
