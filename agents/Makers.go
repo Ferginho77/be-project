@@ -69,7 +69,7 @@ func (a *MakersAgent) TestMakers(systemPrompt, userPrompt string) (string, error
 	req.Header.Set("Content-Type", "application/json")
 
 	// Timeout ditambahkan untuk mencegah request menggantung terlalu lama
-	client := &http.Client{Timeout: 30 * time.Second}
+	client := &http.Client{Timeout: 60 * time.Second}
 
 	resp, err := client.Do(req)
 	if err != nil {
