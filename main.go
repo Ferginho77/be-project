@@ -9,6 +9,7 @@ import (
 	"rest-api/controllers"
 	"rest-api/config"
 	"rest-api/agents"
+	"rest-api/middleware"
 )
 
 func main() {
@@ -33,6 +34,7 @@ func main() {
 	
 	// --- Tanaman ---
 	tanaman := r.Group("/tanamans")
+	tanaman.Use(middleware.AuthMiddleware())
 	{
 		tanaman.GET("", controllers.GetTanaman)
 		tanaman.POST("", controllers.CreateTanaman)
@@ -47,6 +49,7 @@ func main() {
 
 	// --- Lahan ---
 	lahan := r.Group("/lahans")
+	lahan.Use(middleware.AuthMiddleware())
 	{
 		lahan.GET("", controllers.GetLahan)
 		lahan.POST("", controllers.CreateLahan)
@@ -57,6 +60,7 @@ func main() {
 
 	// --- Inventaris ---
 	inventaris := r.Group("/inventaris")
+	inventaris.Use(middleware.AuthMiddleware())
 	{
 		inventaris.GET("", controllers.GetInventaris)
 		inventaris.POST("", controllers.CreateInventaris)
@@ -66,6 +70,7 @@ func main() {
 
 	// --- Scheduler ---
 	scheduler := r.Group("/schedulers")
+	scheduler.Use(middleware.AuthMiddleware())
 	{
 		scheduler.GET("", controllers.GetScheduler)
 		scheduler.POST("", controllers.CreateScheduler)
@@ -76,6 +81,7 @@ func main() {
 
 	// --- Penanaman ---
 	penanaman := r.Group("/penanamans")
+	penanaman.Use(middleware.AuthMiddleware())
 	{
 		penanaman.GET("", controllers.GetPenanaman)
 		penanaman.POST("", controllers.CreatePenanaman)
@@ -85,6 +91,7 @@ func main() {
 
 	// --- Produksi ---
 	produksi := r.Group("/produksi")
+	produksi.Use(middleware.AuthMiddleware())
 	{
 		produksi.GET("", controllers.GetProduksi)
 		produksi.POST("", controllers.CreateProduksi)
@@ -92,6 +99,7 @@ func main() {
 
 	// --- Aktivitas ---
 	aktivitas := r.Group("/aktivitas")
+	aktivitas.Use(middleware.AuthMiddleware())
 	{
 		aktivitas.GET("", controllers.GetAktivitas)
 		aktivitas.POST("", controllers.CreateAktivitas)

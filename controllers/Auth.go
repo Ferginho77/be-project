@@ -13,7 +13,7 @@ import (
 )
 
 // Gunakan secret key yang kuat dan simpan di environment variable (.env) pada tahap produksi
-var jwtKey = []byte(os.Getenv("JWT_SECRET"))
+var jwtKey = []byte(os.Getenv("JWT_TOKEN"))
 
 // Struct untuk menampung input JSON dari React
 type LoginInput struct {

@@ -93,7 +93,7 @@ func (c *AIController) Analyze(ctx *gin.Context) {
 	)
 	aiRawResponse, err := c.Agent.TestMakers(systemPrompt, userPrompt)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memproses analisis AI", "detail": err.Error()})
 		return
 	}
 
